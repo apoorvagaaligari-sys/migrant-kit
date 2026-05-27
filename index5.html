@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Australia Relocation Operating System</title>
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-color: #FAF9F6; --card-bg: #FFFFFF; --text-main: #191919; --text-muted: #7F7F7F; --border-light: #EDEBE6; --navy: #0A1628;
+    --tag-money-bg: #FAEBD7; --tag-money-text: #965B00; --tag-admin-bg: #EDE6F7; --tag-admin-text: #5B2B96;
+    --tag-health-bg: #FCE8E6; --tag-health-text: #A8201A; --tag-housing-bg: #E6F4FA; --tag-housing-text: #1A6FA8;
+    --tag-career-bg: #E6F7F0; --tag-career-text: #116B43; --tag-family-bg: #FAF5E6; --tag-family-text: #705609;
+    --status-not-bg: #FCE8E6; --status-not-text: #A8201A; --status-progress-bg: #FAF5E6; --status-progress-text: #705609;
+    --status-done-bg: #E6F7F0; --status-done-text: #116B43;
+  }
+  body.dark-theme {
+    --bg-color: #191919; --card-bg: #222222; --text-main: #F5F5F5; --text-muted: #A0A0A0; --border-light: #333333; --navy: #4A90E2;
+    --tag-money-bg: #3A2F1D; --tag-money-text: #F5A623; --tag-admin-bg: #2E1F3C; --tag-admin-text: #D6B5FF;
+    --tag-health-bg: #3D1D1B; --tag-health-text: #FF8F8A; --tag-housing-bg: #1D323D; --tag-housing-text: #8AD4FF;
+    --tag-career-bg: #1B3D2F; --tag-career-text: #8AFFC5; --tag-family-bg: #3D391B; --tag-family-text: #FFEAA8;
+    --status-not-bg: #3D1D1B; --status-not-text: #FF8F8A; --status-progress-bg: #3D391B; --status-progress-text: #FFEAA8;
+    --status-done-bg: #1B3D2F; --status-done-text: #8AFFC5;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "DM Sans", sans-serif; background: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; padding-bottom: 100px; }
+  .cover-banner { background: linear-gradient(140deg, #0A1628 0%, #162A45 50%, #10355A 100%); padding: 60px 80px; border-bottom: 1px solid var(--border-light); }
+  .cover-banner h1 { font-size: 34px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; margin-bottom: 10px; }
+  .cover-banner h1 span { background: linear-gradient(90deg, #F5A623, #FF6B6B); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .cover-desc { color: rgba(255,255,255,0.6); font-size: 14.5px; max-width: 700px; line-height: 1.6; }
+  .workspace-root { max-width: 94%; margin: 0 auto; padding-top: 40px; }
+  .filter-panel { background: var(--card-bg); border-radius: 10px; padding: 16px 24px; margin-bottom: 32px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.02); gap: 16px; flex-wrap: wrap; }
+  .filter-label { font-size: 14px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+  .filter-select { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border-light); font-family: inherit; font-size: 13.5px; color: var(--text-main); background: var(--card-bg); cursor: pointer; outline: none; font-weight: 500; }
+  .progress-container { background: var(--card-bg); border: 1px solid var(--border-light); border-radius: 8px; padding: 12px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .progress-meta { font-size: 13px; font-weight: 600; }
+  .progress-track-bar { flex: 1; background: var(--border-light); height: 8px; border-radius: 4px; overflow: hidden; position: relative; }
+  .progress-fill-layer { height: 100%; background: linear-gradient(90deg, #00C9A7, #40C4FF); width: 0%; transition: width 0.3s ease; }
+  .group-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; margin-top: 40px; }
+  .group-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 4px; }
+  .badge-red { background: #FCE8E6; color: #A8201A; }
+  .badge-yellow { background: #FAF5E6; color: #705609; }
+  .badge-green { background: #E6F7F0; color: #116B43; }
+  .group-title { font-size: 18px; font-weight: 600; color: var(--text-main); letter-spacing: -0.3px; }
+  .dataview-wrapper { background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-light); box-shadow: 0 1px 4px rgba(0,0,0,0.01); margin-bottom: 24px; overflow: hidden; }
+  .dataview-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .dataview-table th { padding: 10px 20px; text-align: left; font-size: 11px; font-weight: 500; color: #9B9B9B; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid var(--border-light); background: #FBFBFA; }
+  body.dark-theme .dataview-table th { background: #2A2A2A; color: #888; }
+  .row-master { border-bottom: 1px solid #F6F6F4; cursor: pointer; transition: background 0.1s ease; }
+  body.dark-theme .row-master { border-bottom-color: #2D2D2D; }
+  .row-master:hover { background: #FBFBFA; }
+  body.dark-theme .row-master:hover { background: #2A2A2A; }
+  .row-master.active-expanded { background: #FAFAF9; border-bottom: none; }
+  body.dark-theme .row-master.active-expanded { background: #2D2D2D; }
+  .dataview-table td { padding: 14px 20px; font-size: 14px; color: var(--text-main); vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cell-task { display: flex; align-items: center; font-weight: 500; color: var(--text-main); }
+  .icon-prefix { font-size: 16px; margin-right: 10px; display: inline-block; }
+  .icon-chevron { font-size: 9px; color: var(--text-muted); margin-left: auto; transition: transform 0.15s ease; }
+  .row-master.active-expanded .icon-chevron { transform: rotate(180deg); }
+  .pill-tag { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+  .tag-money { background: var(--tag-money-bg); color: var(--tag-money-text); }
+  .tag-admin { background: var(--tag-admin-bg); color: var(--tag-admin-text); }
+  .tag-health { background: var(--tag-health-bg); color: var(--tag-health-text); }
+  .tag-housing { background: var(--tag-housing-bg); color: var(--tag-housing-text); }
+  .tag-career { background: var(--tag-career-bg); color: var(--tag-career-text); }
+  .tag-family { background: var(--tag-family-bg); color: var(--tag-family-text); }
+  .tag-transport { background: var(--tag-transport-bg); color: var(--tag-transport-text); }
+  .inline-select-container { position: relative; display: inline-block; }
+  .inline-select { appearance: none; -webkit-appearance: none; border: none; font-family: inherit; padding: 4px 12px 4px 24px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; outline: none; width: 130px; position: relative; z-index: 2; background: transparent; }
+  .select-bg-layer { position: absolute; top:0; left:0; right:0; bottom:0; border-radius:4px; z-index:1; pointer-events: none; }
+  .status-dot-indicator { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; border-radius: 50%; z-index: 3; pointer-events: none; }
+  .inline-select.not-started { color: var(--status-not-text); }
+  .inline-select.in-progress { color: var(--status-progress-text); }
+  .inline-select.done { color: var(--status-done-text); }
+  .select-bg-layer.not-started { background: var(--status-not-bg); }
+  .select-bg-layer.in-progress { background: var(--status-progress-bg); }
+  .select-bg-layer.done { background: var(--status-done-bg); }
+  .status-dot-indicator.not-started { background: #D93838; }
+  .status-dot-indicator.in-progress { background: #F5A623; }
+  .status-dot-indicator.done { background: #00C9A7; }
+  .cell-hint { color: var(--text-muted); font-size: 13px; font-style: normal; }
+  .row-workspace { background: #FAF9F6; display: none; border-bottom: 1px solid var(--border-light); }
+  body.dark-theme .row-workspace { background: #242424; }
+  .row-workspace.open { display: table-row; }
+  .inner-workspace-container { padding: 24px 32px; border-left: 3px solid var(--navy); white-space: normal; }
+  .workspace-section-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--navy); letter-spacing: -0.1px; text-transform: uppercase; }
+  .workspace-alert-banner { background: #FFF9EE; border: 1px solid #FCDBB0; padding: 12px 16px; border-radius: 6px; font-size: 13px; line-height: 1.5; margin-bottom: 16px; color: #704F00; }
+  body.dark-theme .workspace-alert-banner { background: #3A2F1D; color: #FFEAA8; border-color: #5C4A2B; }
+  .workflow-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; list-style: none; }
+  .workflow-step { font-size: 13.5px; line-height: 1.5; color: var(--text-main); }
+  .workflow-step strong { color: var(--navy); margin-right: 4px; }
+  .workspace-matrix-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 16px; }
+  .matrix-item-card { background: var(--card-bg); border: 1px solid var(--border-light); border-radius: 6px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.01); }
+  .matrix-card-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--navy); }
+  .matrix-pros, .matrix-cons { font-size: 12.5px; list-style: none; margin-top: 4px; }
+  .matrix-pros li { color: #1E5C41; margin-bottom: 2px; } .matrix-pros li::before { content: '✓ '; font-weight: bold; }
+  .matrix-cons li { color: #91231E; margin-bottom: 2px; } .matrix-cons li::before { content: '✗ '; font-weight: bold; }
+  body.dark-theme .matrix-pros li { color: #8AFFC5; } body.dark-theme .matrix-cons li { color: #FF8F8A; }
+  .workspace-notes-area { width: 100%; border: 1px solid var(--border-light); border-radius: 6px; padding: 12px; font-family: inherit; font-size: 13px; color: var(--text-main); resize: vertical; min-height: 65px; outline: none; background: var(--card-bg); margin-top: 8px; }
+  .workspace-notes-area:focus { border-color: var(--navy); }
+  .workspace-action-trigger { display: inline-flex; align-items: center; gap: 6px; background: #116B43; color: white; text-decoration: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 12px; transition: opacity 0.15s; border: none; cursor: pointer; }
+  .suburb-card-node { background: white; border: 1px solid var(--border-light); border-radius: 6px; padding: 12px 16px; margin-bottom: 8px; }
+  body.dark-theme .suburb-card-node { background: #2A2A2A; }
+  .suburb-node-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 13.5px; font-weight: 600; }
+  .calc-container { background: var(--card-bg); border: 1px solid var(--border-light); border-radius: 8px; padding: 24px; margin-top: 16px; }
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .calc-group { display: flex; flex-direction: column; gap: 6px; }
+  .calc-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+  .calc-input { padding: 8px 12px; border: 1px solid var(--border-light); border-radius: 6px; font-family: inherit; font-size: 14px; background: var(--bg-color); color: var(--text-main); outline: none; }
+  .calc-summary-panel { background: #FBFBFA; border-radius: 6px; padding: 16px; border: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+  body.dark-theme .calc-summary-panel { background: #2A2A2A; }
+  .calc-sum-label { font-size: 14px; font-weight: 700; }
+  .calc-sum-value { font-size: 20px; font-weight: 700; color: #00C9A7; }
+
+  /* DYNAMIC INTERACTIVE DATA GRID TRACKER */
+  .db-sheet-tracker { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; border: 1px solid var(--border-light); }
+  .db-sheet-tracker th { background: #FBFBFA; padding: 10px 12px; font-weight: 600; color: #7F7F7F; text-transform: uppercase; font-size: 11px; border: 1px solid var(--border-light); text-align: left; }
+  body.dark-theme .db-sheet-tracker th { background: #2A2A2A; color: #A0A0A0; }
+  .db-sheet-tracker td { padding: 6px 10px; border: 1px solid var(--border-light); background: #FFFFFF; vertical-align: middle; }
+  body.dark-theme .db-sheet-tracker td { background: #222222; }
+  .sheet-cell-input { width: 100%; border: none; padding: 6px; font-family: inherit; font-size: 13.5px; outline: none; background: transparent; color: var(--text-main); }
+  .sheet-grid-select { appearance: none; -webkit-appearance: none; width: 100%; border: none; padding: 4px 8px; border-radius: 4px; font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; outline: none; text-align: center; }
+  .sheet-grid-select.p0 { background: #FCE8E6; color: #A8201A; }
+  .sheet-grid-select.p1 { background: #FFF0D4; color: #B36B00; }
+  .sheet-grid-select.p2 { background: #E6F4FA; color: #1A6FA8; }
+  .sheet-grid-select.p3 { background: #E6F7F0; color: #116B43; }
+  .sheet-grid-select.status-applied { background: #EDE6F7; color: #5B2B96; }
+  .sheet-grid-select.status-screening { background: #E6F4FA; color: #1A6FA8; }
+  .sheet-grid-select.status-interview { background: #FAF5E6; color: #705609; }
+  .sheet-grid-select.status-offer { background: #E6F7F0; color: #116B43; }
+  .sheet-spawn-btn { background: none; border: none; color: var(--navy); font-size: 13px; font-weight: 600; cursor: pointer; padding: 12px 4px 0; display: inline-flex; align-items: center; gap: 6px; }
+</style>
+</head>
+<body>
+
+<div class="cover-banner">
+  <h1>🇦🇺 The Australia Relocation <span>Operating System</span></h1>
+  <p class="cover-desc">The single-workspace interface mapping your entire settlement path. Isolate regional suburb trends dynamically, process identity workflows inline, and track your active progress streams.</p>
+</div>
+
+<div class="workspace-root">
+
+  <div class="filter-panel">
+    <div class="filter-label">🎯 Active Destination Region Context Filter:</div>
+    <select class="filter-select" id="stateSelectField" onchange="syncSelectedDestinationContextState()">
+      <option value="VIC">Victoria (Melbourne)</option>
+      <option value="NSW">New South Wales (Sydney)</option>
+      <option value="QLD">Queensland (Brisbane)</option>
+      <option value="WA">Western Australia (Perth)</option>
+    </select>
+    <button class="filter-select" style="border:1px solid var(--border-light); cursor:pointer;" onclick="toggleInterfaceViewTheme()">🌓 Switch Interface View Mode</button>
+  </div>
+
+  <div class="progress-container">
+    <div class="progress-meta">Settlement Framework Completion Rate: <span id="pctLabel">0%</span></div>
+    <div class="progress-track-bar"><div class="progress-fill-layer" id="pctBar"></div></div>
+  </div>
+
+  <div class="calc-container">
+    <div class="calc-grid">
+      <div class="calc-group"><label>Expected Weekly Rent ($)</label><input type="number" class="calc-input" id="calcRent" value="550" oninput="calculateRelocationBudgets()"></div>
+      <div class="calc-group"><label>Standard Rental Bond ($)</label><input type="number" class="calc-input" id="calcBond" value="2200" oninput="calculateRelocationBudgets()"></div>
+      <div class="calc-group"><label>Monthly Supermarket Groceries ($)</label><input type="number" class="calc-input" id="calcGroceries" value="900" oninput="calculateRelocationBudgets()"></div>
+      <div class="calc-group"><label>Monthly Public Transport ($)</label><input type="number" class="calc-input" id="calcTransit" value="350" oninput="calculateRelocationBudgets()"></div>
+      <div class="calc-group"><label>Utilities & phone plans ($)</label><input type="number" class="calc-input" id="calcUtilities" value="280" oninput="calculateRelocationBudgets()"></div>
+    </div>
+    <div class="calc-summary-panel">
+      <div class="calc-sum-label">💰 Projected Upfront Capital Allocation Requirement (Month 1):</div>
+      <div class="calc-sum-value" id="calcOutputDisplay">$0.00 AUD</div>
+    </div>
+  </div>
+
+  <div class="group-header">
+    <span class="group-badge badge-red">Phase 1</span>
+    <h2 class="group-title">Urgent Onshore Foundations — Week 1 Pipelines</h2>
+  </div>
+
+  <div class="dataview-wrapper">
+    <table class="dataview-table">
+      <thead>
+        <tr>
+          <th style="width: 42%;">Task Asset Node</th>
+          <th style="width: 15%;">Category</th>
+          <th style="width: 16%;">Execution Status</th>
+          <th style="width: 27%;">Quick Database Summary Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="master-row" onclick="toggleWorkspaceInlineDrawer('tfn', event)">
+          <td><div class="cell-task"><span class="icon-prefix">📄</span>Apply for Tax File Number (TFN) <span class="icon-chevron">▼</span></div></td>
+          <td><span class="pill-tag tag-money">Money</span></td>
+          <td>
+            <div class="inline-select-container">
+              <span class="status-dot-indicator not-started" id="dot-tfn"></span><div class="select-bg-layer not-started" id="bg-tfn"></div>
+              <select class="inline-select not-started" id="status-tfn" onchange="applyInlinePillStyles(this)">
+                <option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option>
+              </select>
+            </div>
+          </td>
+          <td><span class="cell-hint">ato.gov.au — vital to prevent 47% default tax withholdings</span></td>
+        </tr>
+        <tr class="row-workspace" id="drawer-tfn"><td colspan="4"><div class="inner-workspace-container">
+          <div class="workspace-section-title">⚙️ TFN Registry System Pipeline</div>
+          <div class="workspace-alert-banner">Without a TFN, your employer will automatically withhold the highest tax rate (47%). Apply on Day 1.</div>
+          <ul class="workflow-list">
+            <li class="workflow-step"><strong>1.</strong> Enter the digital visa holder module directly via the official government portal: <a href="https://www.ato.gov.au" target="_blank" style="color:var(--navy); font-weight:700;">ato.gov.au</a>.</li>
+            <li class="workflow-step"><strong>2.</strong> Supply international passport numbers, electronic grant data fields, and your initial local address line.</li>
+            <li class="workflow-step"><strong>3.</strong> Document clears via standard postal tracks within 28 days. Merge it into MyGov when cleared.</li>
+          </ul>
+          <textarea class="workspace-notes-area" id="note-tfn" placeholder="Paste application transaction logs or tracking numbers here... (Autosaves)" oninput="persistWorkspaceState()"></textarea>
+        </div></td></tr>
+
+        <tr class="master-row" onclick="toggleWorkspaceInlineDrawer('bank', event)">
+          <td><div class="cell-task"><span class="icon-prefix">🏦</span>Open Main Australian Bank Account <span class="icon-chevron">▼</span></div></td>
+          <td><span class="pill-tag tag-money">Money</span></td>
+          <td>
+            <div class="inline-select-container">
+              <span class="status-dot-indicator not-started" id="dot-bank"></span><div class="select-bg-layer not-started" id="bg-bank"></div>
+              <select class="inline-select not-started" id="status-bank" onchange="applyInlinePillStyles(this)">
+                <option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option>
+              </select>
+            </div>
+          </td>
+          <td><span class="cell-hint">Big Four comparison — open online up to 3 months early</span></td>
+        </tr>
+        <tr class="row-workspace" id="drawer-bank"><td colspan="4"><div class="inner-workspace-container">
+          <div class="workspace-section-title">🏦 Top 5 Famous Banking Comparison Matrix</div>
+          <div class="workspace-matrix-grid">
+            <div class="matrix-item-card">
+              <div class="matrix-card-title">CommBank (CBA)</div>
+              <ul class="matrix-pros"><li>#1 digital smartphone banking software app</li><li>Highest retail branch terminal density in cities</li></ul>
+              <ul class="matrix-cons"><li>$4 standard charge applies past trial if baseline drops</li></ul>
+            </div>
+            <div class="matrix-item-card">
+              <div class="matrix-card-title">NAB</div>
+              <ul class="matrix-pros"><li>$0 permanent baseline everyday structural account maintenance fee</li><li>Excellent support streams tracking migrant allocations</li></ul>
+              <ul class="matrix-cons"><li>Fewer dedicated branch terminal sites globally</li></ul>
+            </div>
+            <div class="matrix-item-card">
+              <div class="matrix-card-title">ANZ Bank</div>
+              <ul class="matrix-pros"><li>Excellent multi-currency options inside global app layers</li><li>Seamless identity processes upon branch touchdown</li></ul>
+              <ul class="matrix-cons"><li>Core retail interface layers can track slightly legacy</li></ul>
+            </div>
+          </div>
+          <textarea class="workspace-notes-area" id="note-bank" placeholder="Record your BSB metrics, accounts, or activation dates... (Autosaves)" oninput="persistWorkspaceState()"></textarea>
+        </div></td></tr>
+
+        <tr class="master-row" onclick="toggleWorkspaceInlineDrawer('sim', event)">
+          <td><div class="cell-task"><span class="icon-prefix">📱</span>Acquire Australian Mobile SIM Card <span class="icon-chevron">▼</span></div></td>
+          <td><span class="pill-tag tag-admin">Admin</span></td>
+          <td>
+            <div class="inline-select-container">
+              <span class="status-dot-indicator not-started" id="dot-sim"></span><div class="select-bg-layer not-started" id="bg-sim"></div>
+              <select class="inline-select not-started" id="status-sim" onchange="applyInlinePillStyles(this)">
+                <option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option>
+              </select>
+            </div>
+          </td>
+          <td><span class="cell-hint">Crucial for onshore two-factor banking identity logs</span></td>
+        </tr>
+        <tr class="row-workspace" id="drawer-sim"><td colspan="4"><div class="inner-workspace-container">
+          <div class="workspace-section-title">📱 Top 5 Mobile Carrier Networks Assessment</div>
+          <div class="workspace-matrix-grid">
+            <div class="matrix-item-card"><b>Telstra</b><ul class="matrix-pros"><li>Unrivalled coverage metrics across regional spaces</li></ul></div>
+            <div class="matrix-item-card"><b>Optus</b><ul class="matrix-pros"><li>Excellent urban 5G network streaming velocity parameters</li></ul></div>
+          </div>
+          <textarea class="workspace-notes-area" id="note-sim" placeholder="Note down your new mobile number here... (Autosaves)" oninput="persistWorkspaceState()"></textarea>
+        </div></td></tr>
+
+        <tr class="master-row" onclick="toggleWorkspaceInlineDrawer('medicare', event)">
+          <td><div class="cell-task"><span class="icon-prefix">💊</span>Register with Medicare Public Healthcare <span class="icon-chevron">▼</span></div></td>
+          <td><span class="pill-tag tag-health">Health</span></td>
+          <td>
+            <div class="inline-select-container">
+              <span class="status-dot-indicator not-started" id="dot-medicare"></span><div class="select-bg-layer not-started" id="bg-medicare"></div>
+              <select class="inline-select not-started" id="status-medicare" onchange="applyInlinePillStyles(this)">
+                <option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option>
+              </select>
+            </div>
+          </td>
+          <td><span class="cell-hint">Subsidised healthcare access setup — requires identity verification</span></td>
+        </tr>
+        <tr class="row-workspace" id="drawer-medicare"><td colspan="4"><div class="inner-workspace-container">
+          <div class="workspace-section-title">🩺 Public Healthcare Enrolment Action Line</div>
+          <ul class="workflow-list">
+            <li class="workflow-step"><strong>1.</strong> Check status parameters relative to Reciprocal Nations list (e.g., UK, Italy, NZ, Ireland).</li>
+            <li class="workflow-step"><strong>2.</strong> Locate and step into your nearest Services Australia operational storefront office.</li>
+            <li class="workflow-step"><strong>3.</strong> Present passport profiles, printed physical visa grant approvals, and initial lease data tracks.</li>
+          </ul>
+          <textarea class="workspace-notes-area" id="note-medicare" placeholder="Save medical reference codes, GP data or billing parameters... (Autosaves)" oninput="persistWorkspaceState()"></textarea>
+        </div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="group-header">
+    <span class="group-badge badge-yellow">Phase 2</span>
+    <h2 class="group-title">Long-Term Settlement Infrastructure — Month 1 Tracks</h2>
+  </div>
+
+  <div class="dataview-wrapper">
+    <table class="dataview-table">
+      <thead>
+        <tr>
+          <th style="width: 42%;">Task Asset Node</th>
+          <th style="width: 15%;">Category</th>
+          <th style="width: 16%;">Execution Status</th>
+          <th style="width: 27%;">Quick Database Summary Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="master-row" onclick="toggleWorkspaceInlineDrawer('licence', event)">
+          <td><div class="cell-task"><span class="icon-prefix">🚗</span>Convert Overseas Driving Licence <span class="icon-chevron">▼</span></div></td>
+          <td><span class="pill-tag tag-transport">Transport</span></td>
+          <td>
+            <div class="inline-select-container">
+              <span class="status-dot-indicator not-started" id="dot-licence"></span><div class="select-bg-layer not-started" id="bg-licence"></div>
+              <select class="inline-select not-started" id="status-licence" onchange="applyInlinePillStyles(this)">
+                <option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option>
+              </select>
+            </div>
+          </td>
+          <td><span class="cell-hint">State conversion deadlines span within 3-6 months</span></td>
+        </tr>
+        <tr class="row-workspace" id="drawer-licence"><td colspan="4"><div class="inner-workspace-container">
+          <div class="workspace-section-title">🚙 State Transport Registrar Direct Channels</div>
+          <div class="workspace-alert-banner">⚠️ Unified Enforcement: Long-term residents must complete licence conversion within 3 to 6 months of living onshore. Check custom state portal rules directly:</div>
+          <div style="margin-top: 6px; margin-bottom:12px;">
+            <a href="https://www.vicroads.vic.gov.au" target="_blank" class="workspace-action-trigger" style="color:white; margin-right:6px;">VicRoads (VIC Portal)</a>
+            <a href="https://www.service.nsw.gov.au" target="_blank" class="workspace-action-trigger" style="color:white; margin-right:6px;">Service NSW (NSW Portal)</a>
+          </div>
+          <textarea class="workspace-notes-area" id="note-licence" placeholder="Save test scheduling dates or translation registry tracking rows... (Autosaves)" oninput="persistWorkspaceState()"></textarea>
+        </div></td></tr>
+
+        <tr class="master-row" onclick="toggleWorkspaceInlineDrawer('suburbs', event)">
+          <td><div class="cell-task"><span class="icon-prefix">🏠</span>Target Suburbs & Cost Projection Profiles <span class="icon-chevron">▼</span></div></td>
+          <td><span class="pill-tag tag-housing">Housing</span></td>
+          <td>
+            <div class="inline-select-container">
+              <span class="status-dot-indicator not-started" id="dot-suburbs"></span><div class="select-bg-layer not-started" id="bg-suburbs"></div>
+              <select class="inline-select not-started" id="status-suburbs" onchange="applyInlinePillStyles(this)">
+                <option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option>
+              </select>
+            </div>
+          </td>
+          <td><span class="cell-hint">Changes dynamically relative to your active state dropdown selector</span></td>
+        </tr>
+        <tr class="row-workspace" id="drawer-suburbs"><td colspan="4"><div class="inner-workspace-container">
+          <div class="workspace-section-title">🏡 Curated Top Suburbs Comparison Matrix</div>
+          <div id="dynamicSuburbWorkspaceDisplayDeck"></div>
+          <textarea class="workspace-notes-area" id="note-suburbs" placeholder="Compare specific rental links or inspect property notes... (Autosaves)" oninput="persistWorkspaceState()"></textarea>
+        </div></td></tr>
+
+        <tr class="row-master" onclick="toggleWorkspaceInlineDrawer('rentalportal', event)">
+          <td><div class="cell-task"><span class="icon-prefix">📋</span>Private Rental Sourcing Playbook <span class="icon-chevron">▼</span></div></td>
+          <td><span class="pill-tag tag-housing">Housing</span></td>
+          <td>
+            <div class="inline-select-container">
+              <span class="status-dot-indicator not-started" id="dot-rentalportal"></span><div class="select-bg-layer not-started" id="bg-rentalportal"></div>
+              <select class="inline-select not-started" id="status-rentalportal" onchange="applyInlinePillStyles(this)">
+                <option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option>
+              </select>
+            </div>
+          </td>
+          <td><span class="cell-hint">Core sourcing apps, documentation criteria, and bond safety rules</span></td>
+        </tr>
+        <tr class="row-workspace" id="drawer-rentalportal"><td colspan="4"><div class="inner-workspace-container">
+          <div class="workspace-section-title">🌐 Top Verified Australian Tenancy Web Networks</div>
+          <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Private residential listings are securely managed across three primary national real estate portals:</p>
+          <div style="margin-bottom: 16px;">
+            <a href="https://www.realestate.com.au" target="_blank" class="workspace-action-trigger" style="color:white; margin-right:6px; background:var(--tag-housing-text);">realestate.com.au</a>
+            <a href="https://www.domain.com.au" target="_blank" class="workspace-action-trigger" style="color:white; margin-right:6px; background:var(--tag-housing-text);">Domain.com.au</a>
+          </div>
+          <div class="workspace-section-title">📋 100-Point Identity Verification Document Kit</div>
+          <div style="font-size:13.5px; line-height:1.6; color:var(--text-main);">
+            • <b>Primary Framework:</b> Valid international passport bio-pages plus formal electronic immigration visa grant confirmation notices.<br>
+            • <b>Proof of Capacity:</b> Signed corporate employment contract or a formal local letter detailing gross base payload. For new arrivals, back your application with converted global cash saving balances.
+          </div>
+          <textarea class="workspace-notes-area" id="note-rentalportal" placeholder="Record upcoming inspections schedules... (Autosaves)" oninput="persistWorkspaceState()"></textarea>
+        </div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="group-header">
+    <span class="group-badge badge-green">Phase 3</span>
+    <h2 class="group-title">The Onshore Career Search & Recruitment Ecosystem</h2>
+  </div>
+
+  <div class="dataview-wrapper">
+    <table class="dataview-table">
+      <thead>
+        <tr>
+          <th style="width: 42%;">Task Asset Node</th>
+          <th style="width: 15%;">Category</th>
+          <th style="width: 16%;">Execution Status</th>
+          <th style="width: 27%;">Quick Database Summary Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="master-row" onclick="toggleWorkspaceInlineDrawer('tracker', event)">
+          <td><div class="cell-task"><span class="icon-prefix">📊</span>Inline Application Logging Database Engine <span class="icon-chevron">▼</span></div></td>
+          <td><span class="pill-tag tag-career">Career</span></td>
+          <td>
+            <div class="inline-select-container">
+              <span class="status-dot-indicator not-started" id="dot-tracker"></span><div class="select-bg-layer not-started" id="bg-tracker"></div>
+              <select class="inline-select not-started" id="status-tracker" onchange="applyInlinePillStyles(this)">
+                <option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option>
+              </select>
+            </div>
+          </td>
+          <td><span class="cell-hint">🖥️ Real-time data grid tracking module built natively into the dashboard</span></td>
+        </tr>
+        <tr class="row-workspace" id="drawer-tracker"><td colspan="4"><div class="inner-workspace-container">
+          <div class="workspace-section-title">📊 Live Application Pipeline Logger (Saves Locally)</div>
+          <div class="workspace-alert-banner">💡 Pure SaaS Experience: Built to replicate the exact design layout you wanted. Type directly inside the fields below and select priority/status labels. Everything autosaves to your browser memory line.</div>
+          
+          <table class="db-sheet-tracker">
+            <thead>
+              <tr>
+                <th style="width: 28%;">Target Company & Brand</th>
+                <th style="width: 25%;">Target Role Title</th>
+                <th style="width: 14%;">Priority</th>
+                <th style="width: 17%;">Hiring Funnel Status</th>
+                <th style="width: 16%;">Follow-Up Target</th>
+              </tr>
+            </thead>
+            <tbody id="interactiveGridBodyNode">
+              </tbody>
+          </table>
+          <button class="sheet-spawn-btn" onclick="addNewDatabaseEntryRowLine()">➕ Add a new application tracking entry line</button>
+        </div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const geographicalRegionalSuburbDataset = {
+  VIC: [
+    { name: "Wyndham Vale / Point Cook", cost: "Avg Rent: ~$460 - $540/wk", details: "Highly popular western family growth corridor. Exceptional neighborhood parks, community infrastructure, and ease of transit to Melbourne CBD lines." },
+    { name: "Southbank", cost: "Avg Rent: ~$620 - $780/wk", details: "Premium high-density vertical architecture adjacent to Melbourne CBD. Walk straight to central office buildings and cultural dining arts hubs." }
+  ],
+  sidebar: []
+};
+
+let appSessionDataEngine = {
+  theme: 'light', state: 'VIC',
+  statuses: { tfn: 'not-started', bank: 'not-started', sim: 'not-started', medicare: 'not-started', licence: 'not-started', suburbs: 'not-started', rentalportal: 'not-started', tracker: 'not-started' },
+  notes: { tfn: '', bank: '', sim: '', medicare: '', licence: '', suburbs: '', rentalportal: '' },
+  applications: [
+    { company: 'NAB', title: 'HR Consultant', priority: 'p0', funnel: 'status-interview', window: 'Follow up Friday' },
+    { company: 'Deloitte', title: 'Talent Lead', priority: 'p1', funnel: 'status-applied', window: 'Pending response' }
+  ]
+};
+
+function toggleWorkspaceInlineDrawer(id, event) {
+  if (event.target.tagName.toLowerCase() === 'select' || event.target.tagName.toLowerCase() === 'option' || event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'a') return;
+  const targetDrawer = document.getElementById('drawer-' + id);
+  const parentTableRow = event.currentTarget;
+  if(targetDrawer.style.display === 'table-row') {
+    targetDrawer.style.display = 'none'; parentTableRow.classList.remove('active-expanded');
+  } else {
+    targetDrawer.style.display = 'table-row'; parentTableRow.classList.add('active-expanded');
+  }
+}
+
+function syncSelectedDestinationContextState() {
+  const selectedCode = document.getElementById('stateSelectField').value;
+  appSessionDataEngine.state = selectedCode;
+  const displayWrap = document.getElementById('dynamicSuburbWorkspaceDisplayDeck');
+  if(!displayWrap) return; displayWrap.innerHTML = '';
+  
+  (geographicalRegionalSuburbDataset[selectedCode] || []).forEach(element => {
+    const block = document.createElement('div'); block.className = 'suburb-card-node';
+    block.innerHTML = `<div class="suburb-node-header"><span style="color:var(--navy); font-weight:700;">${element.name}</span><span style="font-size:12px; color:var(--text-muted); font-weight:600;">${element.cost}</span></div><p style="font-size:13px; color:var(--text-main); line-height:1.45; opacity:0.85;">${element.details}</p>`;
+    displayWrap.appendChild(block);
+  });
+  persistWorkspaceState();
+}
+
+function applyInlinePillStyles(dropdownEl) {
+  const elementIdKey = dropdownEl.id.replace('status-', '');
+  dropdownEl.className = 'inline-select ' + dropdownEl.value;
+  document.getElementById('bg-' + elementIdKey).className = 'select-bg-layer ' + dropdownEl.value;
+  document.getElementById('dot-' + elementIdKey).className = 'status-dot-indicator ' + dropdownEl.value;
+  appSessionDataEngine.statuses[elementIdKey] = dropdownEl.value;
+  calculateExecutionProgressPercentile();
+  persistWorkspaceState();
+}
+
+function calculateExecutionProgressPercentile() {
+  const metrics = Object.values(appSessionDataEngine.statuses);
+  const dynamicDoneCount = metrics.filter(valueString => valueString === 'done').length;
+  const currentCalculatedRatio = Math.round((dynamicDoneCount / metrics.length) * 100);
+  const fillLayerEl = document.getElementById('pctBar');
+  const numericLabelEl = document.getElementById('pctLabel');
+  if(fillLayerEl && numericLabelEl) { fillLayerEl.style.width = currentCalculatedRatio + '%'; numericLabelEl.innerText = currentCalculatedRatio + '%'; }
+}
+
+function calculateRelocationBudgets() {
+  const leaseRowVal = parseFloat(document.getElementById('calcRent').value) || 0;
+  const bondRowVal = parseFloat(document.getElementById('calcBond').value) || 0;
+  const groceryRowVal = parseFloat(document.getElementById('calcGroceries').value) || 0;
+  const transitRowVal = parseFloat(document.getElementById('calcTransit').value) || 0;
+  const utilitiesRowVal = parseFloat(document.getElementById('calcUtilities').value) || 0;
+  const totalMonthRunRateOutputValue = (leaseRowVal * 4.33) + bondRowVal + groceryRowVal + transitRowVal + utilitiesRowVal;
+  document.getElementById('calcOutputDisplay').innerText = '$' + totalMonthRunRateOutputValue.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' AUD';
+}
+
+function buildNativeDataGridRows() {
+  const bodyNode = document.getElementById('interactiveGridBodyNode'); if(!bodyNode) return;
+  bodyNode.innerHTML = '';
+  appSessionDataEngine.applications.forEach((job, index) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input class="sheet-cell-input" value="${job.company}" placeholder="e.g. NAB" data-idx="${index}" data-field="company"></td>
+      <td><input class="sheet-cell-input" value="${job.title}" placeholder="e.g. Strategy Lead" data-idx="${index}" data-field="title"></td>
+      <td>
+        <select class="sheet-grid-select ${job.priority}" data-idx="${index}" data-field="priority" onchange="syncCellSelectStyles(this)">
+          <option value="p0" ${job.priority==='p0'?'selected':''}>P0</option>
+          <option value="p1" ${job.priority==='p1'?'selected':''}>P1</option>
+          <option value="p2" ${job.priority==='p2'?'selected':''}>P2</option>
+          <option value="p3" ${job.priority==='p3'?'selected':''}>P3</option>
+        </select>
+      </td>
+      <td>
+        <select class="sheet-grid-select ${job.funnel}" data-idx="${index}" data-field="funnel" onchange="syncCellSelectStyles(this)">
+          <option value="status-applied" ${job.funnel==='status-applied'?'selected':''}>Applied</option>
+          <option value="status-screening" ${job.funnel==='status-screening'?'selected':''}>Screening</option>
+          <option value="status-interview" ${job.funnel==='status-interview'?'selected':''}>Interview</option>
+          <option value="status-offer" ${job.funnel==='status-offer'?'selected':''}>Offer Made 🎉</option>
+        </select>
+      </td>
+      <td><input class="sheet-cell-input" value="${job.window}" placeholder="Follow up date" data-idx="${index}" data-field="window"></td>
+    `;
+    tr.querySelectorAll('input, select').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const idx = e.target.getAttribute('data-idx'); const field = e.target.getAttribute('data-field');
+        appSessionDataEngine.applications[idx][field] = e.target.value;
+        localStorage.setItem('AusRelocationOS_Production_2026', JSON.stringify(appSessionDataEngine));
+      });
+    });
+    bodyNode.appendChild(tr);
+  });
+}
+
+function syncCellSelectStyles(el) { el.className = 'sheet-grid-select ' + el.value; persistWorkspaceState(); }
+function addNewDatabaseEntryRowLine() { appSessionDataEngine.applications.push({ company: '', title: '', priority: 'p2', funnel: 'status-applied', window: '' }); buildNativeDataGridRows(); persistWorkspaceState(); }
+
+function persistWorkspaceState() {
+  document.querySelectorAll('.workspace-notes-area').forEach(textarea => { appSessionDataEngine.notes[textarea.id.replace('note-', '')] = textarea.value; });
+  const dynamicallyCompiledRows = [];
+  document.querySelectorAll('#interactiveGridBodyNode tr').forEach(row => {
+    const inputs = row.querySelectorAll('input'); const selects = row.querySelectorAll('select');
+    if(inputs.length >= 3 && selects.length >= 2) { dynamicallyCompiledRows.push({ company: inputs[0].value, title: inputs[1].value, priority: selects[0].value, funnel: selects[1].value, window: inputs[2].value }); }
+  });
+  if(dynamicallyCompiledRows.length > 0 || document.querySelectorAll('#interactiveGridBodyNode tr').length === 0) { appSessionDataEngine.applications = dynamicallyCompiledRows; }
+  localStorage.setItem('AusRelocationOS_Production_2026', JSON.stringify(appSessionDataEngine));
+}
+
+function rehydrateWorkspaceDashboardContextOnLoad() {
+  const itemCacheRawDataPayload = localStorage.getItem('AusRelocationOS_Production_2026');
+  if(itemCacheRawDataPayload) { try { appSessionDataEngine = JSON.parse(itemCacheRawDataPayload); } catch(err) {} }
+  if(appSessionDataEngine.theme === 'dark') document.body.classList.add('dark-theme');
+  if(appSessionDataEngine.state) document.getElementById('stateSelectField').value = appSessionDataEngine.state;
+  for (const [key, statusValue] of Object.entries(appSessionDataEngine.statuses)) { const elSelect = document.getElementById('status-' + key); if(elSelect) { elSelect.value = statusValue; applyInlinePillStyles(elSelect); } }
+  for (const [key, notesContentStringValue] of Object.entries(appSessionDataEngine.notes)) { const elTextarea = document.getElementById('note-' + key); if(elTextarea) elTextarea.value = notesContentStringValue; }
+  buildNativeDataGridRows(); syncSelectedDestinationContextState(); calculateRelocationBudgets(); calculateExecutionProgressPercentile();
+}
+window.onload = function() { rehydrateWorkspaceDashboardContextOnLoad(); };
+</script>
+</body>
+</html>
